@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { fbToken, pageId } = require("../config/config");
+const { fbToken, pageId } = require("../config/configs");
 
 async function postToFacebook(message) {
   try {
@@ -8,7 +8,7 @@ async function postToFacebook(message) {
       {
         message,
         access_token: fbToken,
-      }
+      },
     );
 
     console.log("FB Post successful:", res.data);

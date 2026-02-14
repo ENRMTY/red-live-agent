@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 module.exports = {
   fbToken: process.env.FB_PAGE_ACCESS_TOKEN,

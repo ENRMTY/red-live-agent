@@ -71,7 +71,7 @@ async function checkStartingXI(match) {
   try {
     const lineups = await getMatchLineup(matchId);
     const liverpoolLineup = lineups.find(
-      (lineup) => lineup.team.id === LIVERPOOL_TEAM_ID
+      (lineup) => lineup.team.id === LIVERPOOL_TEAM_ID,
     );
 
     if (liverpoolLineup && liverpoolLineup.startXI.length > 0) {
@@ -145,7 +145,7 @@ async function checkGoals(match) {
       (event) =>
         event.type === "Goal" &&
         (event.team.id === LIVERPOOL_TEAM_ID ||
-          (event.detail === "Own Goal" && event.team.id !== LIVERPOOL_TEAM_ID))
+          (event.detail === "Own Goal" && event.team.id !== LIVERPOOL_TEAM_ID)),
     );
 
     for (const goalEvent of goalEvents) {
@@ -161,8 +161,8 @@ async function checkGoals(match) {
       const action = isOwnGoal
         ? "concedes"
         : isLiverpoolGoal
-        ? "SCORES!"
-        : "concedes";
+          ? "SCORES!"
+          : "concedes";
 
       const message = `${emoji} ${
         goalEvent.player.name
@@ -186,7 +186,7 @@ async function checkRedCards(match) {
   try {
     const events = await getMatchEvents(matchId);
     const redCardEvents = events.filter(
-      (event) => event.type === "Card" && event.detail === "Red Card"
+      (event) => event.type === "Card" && event.detail === "Red Card",
     );
 
     for (const cardEvent of redCardEvents) {
@@ -227,6 +227,7 @@ async function checkMatchEnd(match) {
   const isHome = match.teams.home.id === LIVERPOOL_TEAM_ID;
   const liverpoolScore = isHome ? homeScore : awayScore;
   const opponentScore = isHome ? awayScore : homeScore;
+  const opponentName = isHome ? awayTeam : homeTeam;
 
   let result = "";
   if (liverpoolScore > opponentScore) {
@@ -237,7 +238,7 @@ async function checkMatchEnd(match) {
     result = "🤝 Draw 🤝";
   }
 
-  const message = `🏁 FULL TIME 🏁\n\n${result}\n\n🔴 Liverpool FC ${liverpoolScore} - ${opponentScore} ${awayTeam} 🔴\n\nMatch finished!`;
+  const message = `🏁 FULL TIME 🏁\n\n${result}\n\n🔴 Liverpool FC ${liverpoolScore} - ${opponentScore} ${opponentName} 🔴\n\nMatch finished!`;
 
   const fbResult = await postToFacebook(message);
   if (fbResult && fbResult.id) {

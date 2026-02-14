@@ -108,9 +108,12 @@ class DatabaseCache {
    * start automatic cleanup of expired entries
    */
   startCleanup() {
-    this.cleanupInterval = setInterval(async () => {
-      await this.cleanup();
-    }, 5 * 60 * 1000);
+    this.cleanupInterval = setInterval(
+      async () => {
+        await this.cleanup();
+      },
+      5 * 60 * 1000,
+    );
   }
 
   /**
@@ -166,7 +169,6 @@ const cache = new DatabaseCache();
 async function cachedRequest(key, fn, ttlSeconds = 30) {
   // try to get cached first
   let data = await cache.get(key);
-
   if (data !== null) {
     return data;
   }

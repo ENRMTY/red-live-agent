@@ -3,8 +3,8 @@ const {
   footballApiUrl,
   footballApiKey,
   footballApiHost,
-} = require("../config/config");
-const { cachedRequest } = require("../utils/cacheService");
+} = require("../config/configs");
+const { cachedRequest } = require("../cache/cacheService");
 
 const LIVERPOOL_TEAM_ID = 40;
 
@@ -29,7 +29,7 @@ async function getLiverpoolFixtures() {
       const response = await axios.request(options);
       return response.data.response;
     },
-    60
+    60,
   );
 }
 
@@ -54,7 +54,7 @@ async function getLiverpoolLiveFixtures() {
       const response = await axios.request(options);
       return response.data.response;
     },
-    30
+    30,
   );
 }
 
@@ -75,7 +75,7 @@ async function getMatchEvents(fixtureId) {
       const response = await axios.request(options);
       return response.data.response;
     },
-    15
+    15,
   );
 }
 
@@ -96,7 +96,7 @@ async function getMatchLineup(fixtureId) {
       const response = await axios.request(options);
       return response.data.response;
     },
-    300
+    300,
   );
 }
 
