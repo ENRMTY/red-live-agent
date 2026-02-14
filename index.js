@@ -6,24 +6,29 @@ const { runLiverpoolJob } = require("./jobs/postJob");
 const cacheRoutes = require("./routes/cacheRoutes");
 
 const app = express();
+const PORT = process.env.PORT || 7000;
 
 app.use("/api/cache", cacheRoutes);
 
-sequelize
-  .authenticate()
-  .then(() => {
+async function start() {
+  try {
+    await sequelize.authenticate();
     console.log("Database connected successfully");
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error("Unable to connect to the database:", err);
+    process.exit(1);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server running on ${PORT}`);
   });
 
-const PORT = process.env.PORT || 7000;
-
-app.listen(PORT, async () => {
-  console.log(`Server running on ${PORT}`);
+  // run post job every 1 minutes
+  cron.schedule("*/1 * * * *", async () => {
+    await runLiverpoolJob();
+  });
 
   await runLiverpoolJob();
+}
 
-  process.exit(0);
-});
+start();
