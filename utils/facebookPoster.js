@@ -1,4 +1,7 @@
+// external
 const axios = require("axios");
+
+// internal
 const { fbToken, pageId } = require("../config/configs");
 
 async function postToFacebook(message) {
