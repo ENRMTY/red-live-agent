@@ -1,6 +1,9 @@
+// external
 require("dotenv").config();
 const express = require("express");
 const cron = require("node-cron");
+
+// internal
 const sequelize = require("./db");
 const { runLiverpoolJob } = require("./jobs/postJob");
 const cacheRoutes = require("./routes/cacheRoutes");
