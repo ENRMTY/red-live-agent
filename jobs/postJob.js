@@ -31,7 +31,6 @@ async function runLiverpoolJob() {
   }
 }
 
-// post lineups 30–60 minutes before kickoff
 async function checkPreMatchLineups() {
   const upcoming = await getLiverpoolUpcomingFixtures();
   const now = new Date();
@@ -73,10 +72,14 @@ async function checkPreMatchLineups() {
       const isLiverpoolHome = match.teams.home.id === LIVERPOOL_TEAM_ID;
       const liverpoolLineup = isLiverpoolHome ? homeLineup : awayLineup;
       const opponentLineup = isLiverpoolHome ? awayLineup : homeLineup;
-      const liverpoolName =
-        match.teams.home.id === LIVERPOOL_TEAM_ID ? homeName : awayName;
-      const opponentName =
-        match.teams.home.id === LIVERPOOL_TEAM_ID ? awayName : homeName;
+
+      const liverpoolName = isLiverpoolHome
+        ? match.teams.home.name
+        : match.teams.away.name;
+      const opponentName = isLiverpoolHome
+        ? match.teams.away.name
+        : match.teams.home.name;
+
       const message = formatLineupMessage(
         liverpoolLineup,
         opponentLineup,
@@ -85,16 +88,17 @@ async function checkPreMatchLineups() {
       );
 
       const result = await postToFacebook(message);
-      if (result && result.id) {
-        await savePostedEvent(matchId, eventType, { homeName, awayName });
-      }
+      if (result && result.id)
+        await savePostedEvent(matchId, eventType, {
+          liverpoolName,
+          opponentName,
+        });
     } catch (err) {
       console.error("Error posting pre-match lineup for fixture", matchId, err);
     }
   }
 }
 
-// format lineups
 function formatLineupMessage(homeLineup, awayLineup, homeName, awayName) {
   const lines = [
     `${homeName} vs. ${awayName} line-ups:`,
@@ -112,17 +116,15 @@ function formatTeamLineup(lineup) {
   const startXI = lineup.startXI || [];
   const formation = (lineup.formation || "4-3-3").split("-").map(Number);
   if (formation.length < 2) formation.push(4, 3, 3);
-  const counts = [1].concat(formation);
   let i = 0;
   const groups = [];
-  for (const count of counts) {
+  for (const count of [1, ...formation]) {
     const slice = startXI.slice(i, i + count);
     i += count;
     const parts = slice.map((x) => {
-      const name = x.player?.name ?? x.player ?? "?";
-      const num = x.player?.number ?? x.number ?? "";
-      const cap =
-        x.player?.reason === "Captain" || x.reason === "Captain" ? " (c)" : "";
+      const name = x.player?.name ?? "?";
+      const num = x.player?.number ?? "";
+      const cap = x.player?.reason === "Captain" ? " (c)" : "";
       return num ? `${name}${cap}` : name + cap;
     });
     groups.push(parts.join(", "));
@@ -132,54 +134,27 @@ function formatTeamLineup(lineup) {
 
 function formatSubs(lineup) {
   const subs = lineup.substitutes || [];
-  return subs.map((s) => s.player?.name ?? s.player ?? "?").join(", ");
+  return subs.map((s) => s.player?.name ?? "?").join(", ");
 }
 
 async function processLiverpoolMatch(match) {
   const matchId = match.fixture.id;
-  const homeTeam = match.teams.home.name;
-  const awayTeam = match.teams.away.name;
   const isHome = match.teams.home.id === LIVERPOOL_TEAM_ID;
-  const liverpoolTeam = isHome ? match.teams.home : match.teams.away;
-  const opponentTeam = isHome ? match.teams.away : match.teams.home;
 
-  console.log(`Processing Liverpool match: ${homeTeam} vs ${awayTeam}`);
-
-  if (
-    match.fixture.status.short === "1H" ||
-    match.fixture.status.short === "2H"
-  ) {
+  if (["1H", "2H"].includes(match.fixture.status.short))
     await checkStartingXI(match);
-  }
-
-  if (
-    match.fixture.status.short === "1H" &&
-    match.fixture.status.elapsed <= 5
-  ) {
+  if (match.fixture.status.short === "1H" && match.fixture.status.elapsed <= 5)
     await checkKickOff(match);
-  }
-
-  if (match.fixture.status.short === "HT") {
-    await checkHalfTime(match);
-  }
-
+  if (match.fixture.status.short === "HT") await checkHalfTime(match);
   if (
     match.fixture.status.short === "2H" &&
-    (match.fixture.status.elapsed === 0 || match.fixture.status.elapsed === 1)
-  ) {
+    [0, 1].includes(match.fixture.status.elapsed)
+  )
     await checkSecondHalf(match);
-  }
-
   await checkGoals(match);
-
   await checkRedCards(match);
-
-  if (
-    match.fixture.status.short === "FT" ||
-    match.fixture.status.short === "AET"
-  ) {
+  if (["FT", "AET"].includes(match.fixture.status.short))
     await checkMatchEnd(match);
-  }
 }
 
 async function checkStartingXI(match) {
