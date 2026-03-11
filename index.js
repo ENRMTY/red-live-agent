@@ -1,7 +1,8 @@
 require("dotenv").config();
 
 const sequelize = require("./db");
-const { runLiverpoolJob, getLiverpoolLiveFixtures } = require("./jobs/postJob");
+const { runLiverpoolJob } = require("./jobs/postJob");
+const { getLiverpoolLiveFixtures } = require("./services/footballService");
 
 async function start() {
   try {
