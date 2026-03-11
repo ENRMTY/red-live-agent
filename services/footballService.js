@@ -2,7 +2,7 @@
 const axios = require("axios");
 
 // internal
-const { footballApiUrl, footballApiKey } = require("../config/configs");
+const { apiFootballUrl, apiFootballApiKey } = require("../config/configs");
 const { cachedRequest } = require("../cache/cacheService");
 
 const LIVERPOOL_TEAM_ID = 40;
@@ -10,10 +10,10 @@ const LIVERPOOL_TEAM_ID = 40;
 async function apiFootballRequest(endpoint, params = {}) {
   const options = {
     method: "GET",
-    url: `${footballApiUrl}/${endpoint}`,
+    url: `${apiFootballUrl}/${endpoint}`,
     params,
     headers: {
-      "x-apisports-key": footballApiKey,
+      "x-apisports-key": apiFootballApiKey,
     },
   };
 
