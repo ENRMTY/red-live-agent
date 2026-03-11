@@ -22,6 +22,7 @@ async function apiFootballRequest(endpoint, params = {}) {
 }
 
 async function getLiverpoolFixtures(season = new Date().getFullYear()) {
+  // cache season fixtures for 1 hour to reduce api calls
   return cachedRequest(
     "liverpool-fixtures",
     () =>
@@ -30,7 +31,7 @@ async function getLiverpoolFixtures(season = new Date().getFullYear()) {
         season,
         timezone: "Europe/London",
       }),
-    60,
+    3600, // 1 hour
   );
 }
 
@@ -89,7 +90,7 @@ async function getLiverpoolUpcomingFixtures() {
         to,
         timezone: "Europe/London",
       }),
-    5,
+    3600, // 1 hour
   );
 }
 
