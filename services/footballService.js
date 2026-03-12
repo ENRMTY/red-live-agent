@@ -31,7 +31,7 @@ async function getLiverpoolFixtures(season = new Date().getFullYear()) {
         season,
         timezone: "Europe/London",
       }),
-    3600, // 1 hour
+    72 * 3600, // 72 hours
   );
 }
 
@@ -90,7 +90,7 @@ async function getLiverpoolUpcomingFixtures() {
         to,
         timezone: "Europe/London",
       }),
-    3600, // 1 hour
+    18 * 3600,
   );
 }
 
