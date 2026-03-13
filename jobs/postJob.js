@@ -12,7 +12,7 @@ const { isEventPosted, savePostedEvent } = require("../utils/postTracker");
 const PRE_MATCH_LINEUP_WINDOW_MIN = 30;
 const PRE_MATCH_LINEUP_WINDOW_MAX = 60;
 
-async function runLiverpoolJob() {
+async function runLiverpoolJob(liveMatchesFromLoop = null) {
   console.log("Running Liverpool FC post job...");
 
   try {
@@ -21,8 +21,25 @@ async function runLiverpoolJob() {
     console.error("Error in pre-match lineup check:", error);
   }
 
+  let liveMatches = liveMatchesFromLoop;
+
+  if (!liveMatches) {
+    try {
+      liveMatches = await getLiverpoolLiveFixtures();
+    } catch (error) {
+      console.error(
+        "Error fetching live fixtures inside Liverpool post job:",
+        error,
+      );
+      return;
+    }
+  }
+
+  if (!Array.isArray(liveMatches) || liveMatches.length === 0) {
+    return;
+  }
+
   try {
-    const liveMatches = await getLiverpoolLiveFixtures();
     for (const match of liveMatches) {
       await processLiverpoolMatch(match);
     }

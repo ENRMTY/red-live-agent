@@ -45,7 +45,7 @@ async function getLiverpoolLiveFixtures() {
         live: "all",
         timezone: "Europe/London",
       }),
-    30,
+    120, // 2 minutes
   );
 }
 
@@ -56,7 +56,7 @@ async function getMatchEvents(fixtureId) {
       apiFootballRequest("fixtures/events", {
         fixture: fixtureId,
       }),
-    15,
+    15, // 15 seconds
   );
 }
 
@@ -64,7 +64,7 @@ async function getMatchLineup(fixtureId) {
   return cachedRequest(
     `match-lineup-${fixtureId}`,
     () => apiFootballRequest("fixtures/lineups", { fixture: fixtureId }),
-    300,
+    300, // 5 minutes
   );
 }
 
@@ -90,7 +90,7 @@ async function getLiverpoolUpcomingFixtures() {
         to,
         timezone: "Europe/London",
       }),
-    18 * 3600,
+    18 * 3600, // 18 hours
   );
 }
 
